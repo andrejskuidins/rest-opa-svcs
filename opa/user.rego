@@ -7,6 +7,7 @@ allow if {
   input.method == "GET"
   input.path == ["api", "users"]
   input.user != ""
+  input.user != null
 }
 
 # only admin role can create new users

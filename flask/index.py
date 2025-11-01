@@ -10,9 +10,7 @@ def check_access(method, path, role=None):
     user = request.args.get("user")
     input_dict = {"input": {"user": user, "method": method, "path": path, "role": role}}
     rsp = requests.post("http://127.0.0.1:8181/v1/data/httpapi/authz", json=input_dict)
-    if not rsp.json()["result"]["allow"]:
-        return "Unauthorized!", 401
-    return "Welcome Home!", 200
+    return rsp.json()["result"]["allow"]
 
 
 @app.route("/employees", methods=["GET"])
