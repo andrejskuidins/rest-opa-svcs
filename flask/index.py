@@ -6,9 +6,9 @@ from variables import employees
 app = Flask(__name__)
 
 
-def check_access():
+def check_access(method, path, role=None):
     user = request.args.get("user")
-    input_dict = {"input": {"user": user}}
+    input_dict = {"input": {"user": user, "method": method, "path": path, "role": role}}
     rsp = requests.post("http://127.0.0.1:8181/v1/data/httpapi/authz", json=input_dict)
     if not rsp.json()["result"]["allow"]:
         return "Unauthorized!", 401
@@ -17,6 +17,8 @@ def check_access():
 
 @app.route("/employees", methods=["GET"])
 def get_employees():
+    if not check_access("GET", ["api", "users"]):
+        return jsonify({"error": "Unauthorized"}), 401
     return jsonify(employees)
 
 
@@ -39,6 +41,10 @@ def employee_is_valid(employee):
 
 @app.route("/employees", methods=["POST"])
 def create_employee():
+    role = request.args.get("role")
+    if not check_access("POST", ["api", "users"], role):
+        return jsonify({"error": "Unauthorized"}), 401
+
     employee = json.loads(request.data)
     if not employee_is_valid(employee):
         return jsonify({"error": "Invalid employee properties."}), 400
