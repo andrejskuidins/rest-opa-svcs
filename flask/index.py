@@ -1,7 +1,20 @@
 import json
 from flask import Flask, jsonify, request
 from variables import employees
+import requests
 app = Flask(__name__)
+
+def check_access():
+    user = request.args.get("user")
+    input_dict = {
+        "input": {
+            "user": user
+        }
+    }
+    rsp = requests.post("http://127.0.0.1:8181/v1/data/httpapi/authz", json=input_dict)
+    if not rsp.json()["result"]["allow"]:
+        return 'Unauthorized!', 401
+    return 'Welcome Home!', 200
 
 @app.route('/employees', methods=['GET'])
 def get_employees():
