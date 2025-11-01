@@ -1,7 +1,7 @@
 import json
+import requests
 from flask import Flask, jsonify, request
 from variables import employees
-import requests
 
 app = Flask(__name__)
 
