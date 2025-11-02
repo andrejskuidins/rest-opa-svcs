@@ -75,7 +75,15 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: flask-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"  # Force redirect
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"        # Additional enforcement
 spec:
+  ingressClassName: nginx  # Explicitly specify ingress class
+  tls:
+  - hosts:
+    - localhost
+    secretName: flask-tls
   rules:
   - http:
       paths:
