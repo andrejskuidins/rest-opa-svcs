@@ -1,3 +1,6 @@
+#!/bin/bash
+set -e  # Exit on any error
+
 cat <<EOF | kind create cluster --config=-
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
@@ -17,3 +20,10 @@ nodes:
     hostPort: 8181
     protocol: TCP
 EOF
+
+echo "Waiting for cluster to be ready..."
+kubectl wait --for=condition=Ready nodes --all --timeout=300s
+
+kubectl apply -f https://kind.sigs.k8s.io/examples/ingress/deploy-ingress-nginx.yaml
+
+echo "Cluster created successfully!"

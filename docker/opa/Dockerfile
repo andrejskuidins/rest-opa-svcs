@@ -11,4 +11,4 @@ COPY . /app
 EXPOSE 8181
 
 # Run app.py when the container launches
-CMD ["run", "-s", "rego/user.rego", "-l", "debug"]
+CMD ["run", "-s", "--addr=0.0.0.0:8181", "rego/user.rego", "-l", "debug"]
