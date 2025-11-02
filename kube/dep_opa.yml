@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: opa-service
+  namespace: default
+spec:
+  selector:
+    app: opa  # This must match the pod labels
+  ports:
+    - protocol: TCP
+      port: 8181
+      targetPort: 8181
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opa-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opa  # Deployment selector
+  template:
+    metadata:
+      labels:
+        app: opa  # Pod labels - MUST match Service selector!
+    spec:
+      containers:
+      - name: opa
+        image: dirivio/flask-opa-rego:v0.0.4
+        ports:
+        - containerPort: 8181
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-service
+  namespace: default
+spec:
+  selector:
+    app: flask  # This must match the pod labels
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask  # Deployment selector
+  template:
+    metadata:
+      labels:
+        app: flask  # Pod labels - MUST match Service selector!
+    spec:
+      containers:
+      - name: flask
+        image: dirivio/flask-app-users:v0.0.4
+        env:
+        - name: OPA_URL
+          value: "http://opa-service:8181/v1/data/httpapi/authz"
+        - name: FLASK_PORT
+          value: "8000"
+        ports:
+        - containerPort: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: flask-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"  # Force redirect
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"        # Additional enforcement
+spec:
+  ingressClassName: nginx  # Explicitly specify ingress class
+  tls:
+  - hosts:
+    - localhost
+    secretName: flask-tls
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: /api/users
+        backend:
+          service:
+            name: flask-service
+            port:
+              number: 8000
+---
