@@ -12,8 +12,11 @@ OPA_URL = os.getenv("OPA_URL", "http://opa-service:8181/v1/data/httpapi/authz")
 def check_access(method, path, role=None):
     user = request.args.get("user")
     input_dict = {"input": {"user": user, "method": method, "path": path, "role": role}}
+    print(f"Sending to OPA: {json.dumps(input_dict, indent=2)}")  # Debug
     rsp = requests.post(OPA_URL, json=input_dict)
-    return rsp.json()["result"]["allow"]
+    result = rsp.json()
+    print(f"OPA response: {json.dumps(result, indent=2)}")  # Debug
+    return result["result"]["allow"]
 
 
 @app.route("/api/users", methods=["GET"])
@@ -90,4 +93,5 @@ def delete_user(name: str):
 
 
 if __name__ == "__main__":
-    app.run(port=8000)
+    port = int(os.getenv("FLASK_PORT", "8000"))
+    app.run(host='0.0.0.0', port=port)
