@@ -13,4 +13,7 @@ nodes:
   - containerPort: 8000
     hostPort: 8000
     protocol: TCP
+  - containerPort: 8181
+    hostPort: 8181
+    protocol: TCP
 EOF

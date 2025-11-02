@@ -1,15 +1,17 @@
 import json
 import requests
+import os
 from flask import Flask, jsonify, request
 from variables import employees
 
 app = Flask(__name__)
 
+OPA_URL = os.getenv("OPA_URL", "http://opa-service:8181/v1/data/httpapi/authz")
 
 def check_access(method, path, role=None):
     user = request.args.get("user")
     input_dict = {"input": {"user": user, "method": method, "path": path, "role": role}}
-    rsp = requests.post("http://127.0.0.1:8181/v1/data/httpapi/authz", json=input_dict)
+    rsp = requests.post(OPA_URL, json=input_dict)
     return rsp.json()["result"]["allow"]
 
 

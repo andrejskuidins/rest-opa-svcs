@@ -1,77 +1,91 @@
-kind: Pod
 apiVersion: v1
-metadata:
-  name: foo-app
-  labels:
-    app: foo
-spec:
-  containers:
-  - command:
-    - /agnhost
-    - serve-hostname
-    - --http=true
-    - --port=8080
-    image: registry.k8s.io/e2e-test-images/agnhost:2.39
-    name: foo-app
----
 kind: Service
-apiVersion: v1
 metadata:
-  name: foo-service
+  name: opa-service
+  namespace: default
 spec:
   selector:
-    app: foo
+    app: opa  # This must match the pod labels
   ports:
-  # Default port used by the image
-  - port: 8080
+    - protocol: TCP
+      port: 8181
+      targetPort: 8181
 ---
-kind: Pod
-apiVersion: v1
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: bar-app
-  labels:
-    app: bar
+  name: opa-deployment
+  namespace: default
 spec:
-  containers:
-  - command:
-    - /agnhost
-    - serve-hostname
-    - --http=true
-    - --port=8080
-    image: registry.k8s.io/e2e-test-images/agnhost:2.39
-    name: bar-app
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opa  # Deployment selector
+  template:
+    metadata:
+      labels:
+        app: opa  # Pod labels - MUST match Service selector!
+    spec:
+      containers:
+      - name: opa
+        image: dirivio/flask-opa-rego:v0.0.2
+        ports:
+        - containerPort: 8181
 ---
-kind: Service
 apiVersion: v1
+kind: Service
 metadata:
-  name: bar-service
+  name: flask-service
+  namespace: default
 spec:
   selector:
-    app: bar
+    app: flask  # This must match the pod labels
   ports:
-  # Default port used by the image
-  - port: 8080
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask  # Deployment selector
+  template:
+    metadata:
+      labels:
+        app: flask  # Pod labels - MUST match Service selector!
+    spec:
+      containers:
+      - name: flask
+        image: dirivio/flask-app-users:v0.0.1
+        ports:
+        - containerPort: 8000
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: example-ingress
+  name: flask-ingress
 spec:
   rules:
   - http:
       paths:
       - pathType: Prefix
-        path: /foo
+        path: /api/users
         backend:
           service:
-            name: foo-service
+            name: opa-service
             port:
-              number: 8080
+              number: 8181
       - pathType: Prefix
-        path: /bar
+        path: /api/users
         backend:
           service:
-            name: bar-service
+            name: flask-service
             port:
-              number: 8080
+              number: 8000
 ---
