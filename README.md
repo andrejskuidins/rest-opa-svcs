@@ -31,21 +31,12 @@ Response to Client
 
 **Flask Application** (`docker/flask/`)
 - User management REST API
-- Authorization integration via HTTP calls to OPA
-- Endpoints for GET, POST, PUT, DELETE operations on users
-- Environment-based configuration (OPA URL, Flask port)
 
 **OPA Policy Engine** (`docker/opa/`)
 - Policy-as-code using Rego language
-- Evaluates authorization requests from Flask
-- Default deny security posture
-- Role-based access control rules
 
 **Kubernetes Resources** (`kube/`)
 - Kind cluster creation script with port mappings
-- Service discovery for Flask and OPA
-- Ingress configuration for HTTPS
-- TLS certificate setup
 
 ## API Endpoints
 
@@ -90,6 +81,49 @@ The OPA Rego policies (`docker/opa/rego/user.rego`) enforce the following rules:
 - **DELETE /api/users/{name}**: Allow only admin role
 
 Users are identified via the `user` query parameter, and must be non-empty and non-null to authenticate.
+
+## Quick Start
+
+### Kubernetes Deployment
+
+Create a local Kind cluster:
+
+```bash
+cd kube
+bash create_cluster.sh
+```
+
+Deploy to Kubernetes:
+
+```bash
+kubectl apply -f kube/dep_opa.yml
+```
+
+Set up TLS certificates:
+
+```bash
+cd kube
+bash tls.sh
+```
+
+Verify deployments:
+
+```bash
+kubectl get pods
+kubectl get services
+kubectl get ingress
+```
+
+Access the API:
+
+```bash
+# Through Ingress (HTTPS on localhost)
+curl -k "https://localhost/api/users?user=testuser"
+
+# Or directly to service port
+kubectl port-forward service/flask-service 8000:8000
+curl "http://localhost:8000/api/users?user=testuser"
+```
 
 ## License
 
