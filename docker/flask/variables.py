@@ -1,4 +1,4 @@
-employees = [
+users = [
   { 'name': 'Barbara Jones', 'email': 'barbara.jones@outlook.com' },
   { 'name': 'Ruth Young', 'email': 'ruth.young@infra.org' },
   { 'name': 'Aaron Graves', 'email': 'aaron.graves@infra.org' },
