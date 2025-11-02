@@ -76,6 +76,7 @@ def update_user(name: str):
 
 @app.route("/api/users/<string:name>", methods=["DELETE"])
 def delete_user(name: str):
+    global users
     role = request.args.get("role")
     if not check_access("DELETE", ["api", "users", name], role):
         return jsonify({"error": "Unauthorized"}), 401
