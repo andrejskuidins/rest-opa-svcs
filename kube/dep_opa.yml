@@ -32,10 +32,10 @@ spec:
         args:
           - "run"
           - "-s"
-          - "--addr=0.0.0.0:8181"
           - "rego/user.rego"
-          - "-l"
-          - "debug"
+          - "--addr=0.0.0.0:8181"
+          - "--log-format=json-pretty"
+          - "--log-level=info"
         ports:
         - containerPort: 8181
         volumeMounts:
