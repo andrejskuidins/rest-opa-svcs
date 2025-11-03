@@ -52,6 +52,8 @@ All endpoints require a `user` query parameter for identification. Certain opera
 
 ### Example Requests
 
+> **_NOTE:_**  For local kind cluster remove 8000 port below.
+
 ```bash
 # List all users (any authenticated user)
 curl "http://localhost:8000/api/users?user=alice"
