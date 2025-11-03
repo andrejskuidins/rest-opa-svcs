@@ -77,7 +77,7 @@ spec:
     spec:
       containers:
       - name: flask
-        image: dirivio/flask-app-users:v0.0.5
+        image: dirivio/flask-app-users:v0.0.6
         env:
         - name: OPA_URL
           value: "http://opa-service:8181/v1/data/httpapi/authz"

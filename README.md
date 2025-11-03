@@ -4,7 +4,7 @@ A user database REST API built with **Flask** and **Open Policy Agent (OPA)**, c
 
 ## Overview
 
-This project demonstrates a complete user databsewhere:
+This project demonstrates a complete user databse where:
 
 - **Flask** provides a REST API for user management (CRUD operations)
 - **OPA** (Open Policy Agent) enforces authorization policies written in **Rego**
@@ -29,13 +29,13 @@ Response to Client
 
 ### Components
 
-**Flask Application** (`docker/flask/`)
+**Flask Application** (`flask/`)
 - User management REST API
 
-**OPA Policy Engine** (`docker/opa/`)
+**OPA Policy Engine** (`kube/configmap_opa.yml`)
 - Policy-as-code using Rego language
 
-**Kubernetes Resources** (`kube/`)
+**Kubernetes Resources** (`kube/dep_opa.yml`)
 - Kind cluster creation script with port mappings
 
 ## API Endpoints
@@ -96,14 +96,8 @@ bash create_cluster.sh
 Deploy to Kubernetes:
 
 ```bash
+kubectl apply -f kube/configmap_opa.yml
 kubectl apply -f kube/dep_opa.yml
-```
-
-Set up TLS certificates:
-
-```bash
-cd kube
-bash tls.sh
 ```
 
 Verify deployments:
