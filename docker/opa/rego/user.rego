@@ -10,6 +10,16 @@ allow if {
   input.user != null
 }
 
+# any authenticated user can get a specific user
+allow if {
+  input.method == "GET"
+  count(input.path) == 3
+  input.path[0] == "api"
+  input.path[1] == "users"
+  input.user != ""
+  input.user != null
+}
+
 # only admin role can create new users
 allow if {
   input.method == "POST"
@@ -17,7 +27,7 @@ allow if {
   input.role == "admin"
 }
 
-# only admin role can update new users
+# only admin role can update users
 allow if {
   input.method == "PUT"
   count(input.path) == 3
@@ -26,7 +36,7 @@ allow if {
   input.role == "admin"
 }
 
-# only admin role can delete new users
+# only admin role can delete users
 allow if {
   input.method == "DELETE"
   count(input.path) == 3

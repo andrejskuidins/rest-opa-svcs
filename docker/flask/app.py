@@ -28,6 +28,9 @@ def get_users():
 
 @app.route("/api/users/<string:name>", methods=["GET"])
 def get_user_by_name(name: str):
+    if not check_access("GET", ["api", "users", name]):
+        return jsonify({"error": "Unauthorized"}), 401
+
     user = get_user(name)
     if user is None:
         return jsonify({"error": "user does not exist"}), 404

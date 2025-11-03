@@ -20,17 +20,32 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: opa  # Deployment selector
+      app: opa
   template:
     metadata:
       labels:
-        app: opa  # Pod labels - MUST match Service selector!
+        app: opa
     spec:
       containers:
       - name: opa
-        image: dirivio/flask-opa-rego:v0.0.4
+        image: openpolicyagent/opa:1.10.0
+        args:
+          - "run"
+          - "-s"
+          - "--addr=0.0.0.0:8181"
+          - "rego/user.rego"
+          - "-l"
+          - "debug"
         ports:
         - containerPort: 8181
+        volumeMounts:
+        - name: opa-policy
+          mountPath: /rego
+          readOnly: true
+      volumes:
+      - name: opa-policy
+        configMap:
+          name: opa-policy
 ---
 apiVersion: v1
 kind: Service
@@ -62,7 +77,7 @@ spec:
     spec:
       containers:
       - name: flask
-        image: dirivio/flask-app-users:v0.0.4
+        image: dirivio/flask-app-users:v0.0.5
         env:
         - name: OPA_URL
           value: "http://opa-service:8181/v1/data/httpapi/authz"
