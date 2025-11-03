@@ -5,7 +5,7 @@ metadata:
   namespace: default
 spec:
   selector:
-    app: opa  # This must match the pod labels
+    app: opa
   ports:
     - protocol: TCP
       port: 8181
@@ -20,17 +20,32 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: opa  # Deployment selector
+      app: opa
   template:
     metadata:
       labels:
-        app: opa  # Pod labels - MUST match Service selector!
+        app: opa
     spec:
       containers:
       - name: opa
-        image: dirivio/flask-opa-rego:v0.0.4
+        image: openpolicyagent/opa:1.10.0
+        args:
+          - "run"
+          - "-s"
+          - "rego/user.rego"
+          - "--addr=0.0.0.0:8181"
+          - "--log-format=json-pretty"
+          - "--log-level=info"
         ports:
         - containerPort: 8181
+        volumeMounts:
+        - name: opa-policy
+          mountPath: /rego
+          readOnly: true
+      volumes:
+      - name: opa-policy
+        configMap:
+          name: opa-policy
 ---
 apiVersion: v1
 kind: Service
@@ -39,7 +54,7 @@ metadata:
   namespace: default
 spec:
   selector:
-    app: flask  # This must match the pod labels
+    app: flask
   ports:
     - protocol: TCP
       port: 8000
@@ -54,15 +69,15 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: flask  # Deployment selector
+      app: flask
   template:
     metadata:
       labels:
-        app: flask  # Pod labels - MUST match Service selector!
+        app: flask
     spec:
       containers:
       - name: flask
-        image: dirivio/flask-app-users:v0.0.4
+        image: dirivio/flask-app-users:v0.0.6
         env:
         - name: OPA_URL
           value: "http://opa-service:8181/v1/data/httpapi/authz"
@@ -79,7 +94,7 @@ metadata:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"  # Force redirect
     nginx.ingress.kubernetes.io/ssl-redirect: "true"        # Additional enforcement
 spec:
-  ingressClassName: nginx  # Explicitly specify ingress class
+  ingressClassName: nginx
   tls:
   - hosts:
     - localhost
