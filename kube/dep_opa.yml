@@ -5,7 +5,7 @@ metadata:
   namespace: default
 spec:
   selector:
-    app: opa  # This must match the pod labels
+    app: opa
   ports:
     - protocol: TCP
       port: 8181
@@ -54,7 +54,7 @@ metadata:
   namespace: default
 spec:
   selector:
-    app: flask  # This must match the pod labels
+    app: flask
   ports:
     - protocol: TCP
       port: 8000
@@ -69,11 +69,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: flask  # Deployment selector
+      app: flask
   template:
     metadata:
       labels:
-        app: flask  # Pod labels - MUST match Service selector!
+        app: flask
     spec:
       containers:
       - name: flask
@@ -94,7 +94,7 @@ metadata:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"  # Force redirect
     nginx.ingress.kubernetes.io/ssl-redirect: "true"        # Additional enforcement
 spec:
-  ingressClassName: nginx  # Explicitly specify ingress class
+  ingressClassName: nginx
   tls:
   - hosts:
     - localhost
