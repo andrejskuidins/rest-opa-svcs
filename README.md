@@ -4,12 +4,13 @@ A user database REST API built with **Flask** and **Open Policy Agent (OPA)**, c
 
 ## Overview
 
-This project demonstrates a complete user databse where:
+This project demonstrates a complete user database where:
 
 - **Flask** provides a REST API for user management (CRUD operations)
 - **OPA** (Open Policy Agent) enforces authorization policies written in **Rego**
-- **Kubernetes** orchestrates both services with service discovery and ingress routing
-- **Docker** containers package both the Flask application and OPA policy engine
+- **Redis** stores user data with connection pooling for multi-worker efficiency
+- **Kubernetes** orchestrates all services with service discovery and ingress routing
+- **Docker** containers package the Flask application and OPA policy engine
 
 The authorization system implements role-based access control with granular policies for different HTTP methods and API endpoints.
 
@@ -24,6 +25,8 @@ OPA Policy Engine (Port 8181)
     ↓
 Authorization Decision
     ↓
+Redis Database (Port 6379)
+    ↓
 Response to Client
 ```
 
@@ -35,7 +38,10 @@ Response to Client
 **OPA Policy Engine** (`kube/configmap_opa.yml`)
 - Policy-as-code using Rego language
 
-**Kubernetes Resources** (`kube/dep_opa.yml`)
+**Redis** (`kube/dep_redis.yml`)
+- Connection pooling from Flask application
+
+**Kubernetes Resources** (`kube/`)
 - Kind cluster creation script with port mappings
 
 ## API Endpoints
@@ -99,6 +105,7 @@ Deploy to Kubernetes:
 
 ```bash
 kubectl apply -f kube/configmap_opa.yml
+kubectl apply -f kube/dep_redis.yml
 kubectl apply -f kube/dep_opa.yml
 ```
 
@@ -132,3 +139,4 @@ This project is provided as-is for educational and development purposes.
 - [Rego Language Guide](https://www.openpolicyagent.org/docs/latest/policy-language/)
 - [Kubernetes Documentation](https://kubernetes.io/docs/)
 - [Kind - Kubernetes in Docker](https://kind.sigs.k8s.io/)
+- [Redis Documentation](https://redis.io/documentation)
