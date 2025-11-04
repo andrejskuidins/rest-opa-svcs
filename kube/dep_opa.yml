@@ -27,25 +27,25 @@ spec:
         app: opa
     spec:
       containers:
-      - name: opa
-        image: openpolicyagent/opa:1.10.0
-        args:
-          - "run"
-          - "-s"
-          - "rego/user.rego"
-          - "--addr=0.0.0.0:8181"
-          - "--log-format=json-pretty"
-          - "--log-level=info"
-        ports:
-        - containerPort: 8181
-        volumeMounts:
-        - name: opa-policy
-          mountPath: /rego
-          readOnly: true
+        - name: opa
+          image: openpolicyagent/opa:1.10.0
+          args:
+            - "run"
+            - "-s"
+            - "rego/user.rego"
+            - "--addr=0.0.0.0:8181"
+            - "--log-format=json-pretty"
+            - "--log-level=info"
+          ports:
+            - containerPort: 8181
+          volumeMounts:
+            - name: opa-policy
+              mountPath: /rego
+              readOnly: true
       volumes:
-      - name: opa-policy
-        configMap:
-          name: opa-policy
+        - name: opa-policy
+          configMap:
+            name: opa-policy
 ---
 apiVersion: v1
 kind: Service
@@ -76,37 +76,38 @@ spec:
         app: flask
     spec:
       containers:
-      - name: flask
-        image: dirivio/flask-app-users:v0.0.6
-        env:
-        - name: OPA_URL
-          value: "http://opa-service:8181/v1/data/httpapi/authz"
-        - name: FLASK_PORT
-          value: "8000"
-        ports:
-        - containerPort: 8000
+        - name: flask
+          image: dirivio/flask-app-users:v0.0.8
+          env:
+            - name: OPA_URL
+              value: "http://opa-service:8181/v1/data/httpapi/authz"
+            - name: FLASK_PORT
+              value: "8000"
+          ports:
+            - containerPort: 8000
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: flask-ingress
   annotations:
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"  # Force redirect
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"        # Additional enforcement
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true" # Force redirect
+    nginx.ingress.kubernetes.io/ssl-redirect: "true" # Additional enforcement
 spec:
   ingressClassName: nginx
   tls:
-  - hosts:
-    - localhost
-    secretName: flask-tls
+    - hosts:
+        - localhost
+      secretName: flask-tls
   rules:
-  - http:
-      paths:
-      - pathType: Prefix
-        path: /api/users
-        backend:
-          service:
-            name: flask-service
-            port:
-              number: 8000
+    - http:
+        paths:
+          - pathType: Prefix
+            path: /api/users
+            backend:
+              service:
+                name: flask-service
+                port:
+                  number: 8000
 ---
+
