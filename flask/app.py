@@ -12,13 +12,12 @@ app = Flask(__name__)
 REDIS_URL = os.getenv("REDIS_URL", "redis://redis-service:6379/0")
 redis_pool = redis.ConnectionPool.from_url(REDIS_URL, decode_responses=True)
 
+OPA_URL = os.getenv("OPA_URL", "http://opa-service:8181/v1/data/httpapi/authz")
+
 
 def get_redis():
     """Get Redis connection from pool"""
     return redis.Redis(connection_pool=redis_pool)
-
-
-OPA_URL = os.getenv("OPA_URL", "http://opa-service:8181/v1/data/httpapi/authz")
 
 
 def load_users_into_redis():
